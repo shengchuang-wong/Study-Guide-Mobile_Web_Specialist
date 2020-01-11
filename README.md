@@ -1,7 +1,7 @@
 # mobile-web-specialist-study-guide
 
 ## Sections
-1. [Mobile web forms](#markdown-mobile-web-forms)
+1. [Mobile web forms](#accessibility)
 
 ## Basic website layout and styling
 Users expect responsive and visually engaging websites regardless of the device. A web application's layout and styling must respond to the current display, while continuing to provide intuitive functionality. You'll be asked to show you can use HTML, CSS, and JavaScript to build a web application’s responsive layout and style that includes:
