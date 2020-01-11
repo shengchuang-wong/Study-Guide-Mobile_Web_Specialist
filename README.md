@@ -1,5 +1,8 @@
 # mobile-web-specialist-study-guide
 
+## Sections
+1. [Mobile web forms](#mobile-web-forms)
+
 ## Basic website layout and styling
 Users expect responsive and visually engaging websites regardless of the device. A web application's layout and styling must respond to the current display, while continuing to provide intuitive functionality. You'll be asked to show you can use HTML, CSS, and JavaScript to build a web application’s responsive layout and style that includes:
 
@@ -123,7 +126,7 @@ Web developers must stay current with the latest JavaScript features that promot
 2. [Codelabs -> Build your first ES2015/ES6 application](https://codelabs.developers.google.com/codelabs/chrome-es2015/)
 3. [Web Fundamentals -> JavaScript Promises: an Introduction](https://developers.google.com/web/fundamentals/getting-started/primers/promises)
 
-## Mobile web forms
+## Mobile web forms(#mobile-web-forms)
 Filling out online forms, especially on mobile devices, can be difficult. To improve the user experience you'll be asked to show that you can use basic HTML5, JavaScript, and the HTML5 Constraint Validation API, to design efficient and secure HTML web forms with:
 
 - Appropriate `label` tags associated with inputs
