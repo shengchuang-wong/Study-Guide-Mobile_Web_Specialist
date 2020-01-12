@@ -23,11 +23,107 @@ Users expect responsive and visually engaging websites regardless of the device.
 ### Resources:
 1. [Codelabs -> Responsive design](https://codelabs.developers.google.com/codelabs/pwa-responsive-design/index.html?index=..%2F..dev-pwa-training#0)
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+#### Viewport meta tag
+- `<meta name="viewport" content="width=device-width, initial-scale=1">`
 
+#### Media query
+```css
+@media screen and (max-width: 48rem) {
+  .container .col {
+    width: 95%;
+  }
+}
+```
+
+#### Flex and css prefix
+[What CSS to prefix](http://shouldiprefix.com/#flexbox)
+```css
+.container {
+  display: -webkit-box;  /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -ms-flexbox;  /* TWEENER - IE 10 */
+  display: flex;         /* NEW, Spec - Firefox, Chrome, Opera */
+  background: #eee;  
+  overflow: auto;
+}
+
+.container .col {
+  flex: 1;
+  padding: 1rem;
+}
+```
+
+#### No Flexbox - fallback support
+[Modernizr](https://modernizr.com/docs)
 
 2. [Codelabs -> Responsive images](https://codelabs.developers.google.com/codelabs/pwa-responsive-images/index.html?index=..%2F..dev-pwa-training#0)
+
+#### Responsive image
+- `sizes` value matches the image's `max-width`
+```html
+<img src="images/sfo-500_small.jpg" srcset="images/sfo-1600_large.jpg 1600w, images/sfo-1000_large.jpg 1000w, images/sfo-800_medium.jpg 800w, images/sfo-500_small.jpg 500w" sizes="50vw" alt="View from aircraft window near San Francisco airport" />
+```
+
+```css
+@media screen and (max-width: 700px) {
+  img#sfo {
+    max-width: 90vw;
+    width: 90vw;
+  }
+}
+
+html
+sizes="(max-width: 700px) 90vw, 50vw"
+```
+#### Picture ELement
+```html
+<figure>
+    <picture>
+    <source media="(min-width: 750px)"
+            srcset="images/horses-1600_large_2x.jpg 2x,
+                    images/horses-800_large_1x.jpg" />
+    <source media="(min-width: 500px)"
+            srcset="images/horses_medium.jpg" />
+    <img src="images/horses_small.jpg" alt="Horses in Hawaii">
+    </picture>
+    <figcaption>Horses in Hawaii</figcaption>
+</figure>
+```
+
 3. [Web Fundamentals -> Video](https://developers.google.com/web/fundamentals/media/video)
+
+#### Video Element Tag
+```html
+<video controls>
+  <source src="https://storage.googleapis.com/webfundamentals-assets/videos/chrome.webm" type="video/webm">
+  <source src="https://storage.googleapis.com/webfundamentals-assets/videos/chrome.mp4" type="video/mp4">
+  <p>This browser does not support the video element.</p>
+</video>
+```
+
+#### Speficy video start and end time
+`<source src="video/chrome.webm#t=5,10" type="video/webm">`
+
+#### Include a poster image for video
+```html
+<video poster="poster.jpg" ...>
+  ...
+</video>
+```
+
+#### Track element for accessibility
+```html
+<video controls>
+  <source src="https://storage.googleapis.com/webfundamentals-assets/videos/chrome.webm" type="video/webm" />
+  <source src="https://storage.googleapis.com/webfundamentals-assets/videos/chrome.mp4" type="video/mp4" />
+  <track src="chrome-subtitles-en.vtt" label="English captions"
+         kind="captions" srclang="en" default>
+  <p>This browser does not support the video element.</p>
+</video>
+```
+- [Mobile Web Video Playback
+](https://developers.google.com/web/fundamentals/media/mobile-web-video-playback)
+- [Control fullscreen](https://developers.google.com/web/fundamentals/media/video#control_fullscreening_of_content)
+
 4. [https://developers.google.com/web/fundamentals/design-and-ux/responsive/](https://developers.google.com/web/fundamentals/design-and-ux/responsive/)
 5. [Web Fundamentals -> Add Touch to Your Site](https://developers.google.com/web/fundamentals/design-and-ux/input/touch/)
 
@@ -45,6 +141,55 @@ Because user engagement depends on reliable and effective network requests, you'
 ### Resources:
 1. [Codelabs -> Fetch API](https://developers.google.com/certification/mobile-web-specialist/study-guide/networking)
 
+#### Fetching a resource
+```js
+function fetchJSON() {
+  fetch('examples/animals.json')
+    .then(logResult)
+    .catch(logError);
+}
+```
+
+#### Fetch an image
+```js
+function fetchImage() {
+  fetch('examples/fetching.jpg')
+    .then(validateResponse)
+    .then(readResponseAsBlob)
+    .then(showImage)
+    .catch(logError);
+}
+```
+
+```js
+function readResponseAsBlob(response) {
+  return response.blob();
+}
+```
+
+```js
+function showImage(responseAsBlob) {
+  const container = document.getElementById('img-container');
+  const imgElem = document.createElement('img');
+  container.appendChild(imgElem);
+  const imgUrl = URL.createObjectURL(responseAsBlob);
+  imgElem.src = imgUrl;
+}
+```
+
+#### Using HEAD requests
+```js
+function headRequest() {
+  fetch('examples/words.txt', {
+    method: 'HEAD'
+  })
+  .then(validateResponse)
+  .then(readResponseAsText)
+  .then(logResult)
+  .catch(logError);
+}
+```
+
 ## Accessibility
 Web pages and applications should be accessible to all users, including those with visual, motor, hearing, and cognitive impairments. Using HTML, CSS, JavaScript, you'll be asked to show you can integrate accessibility best practices into your web pages and applications by:
 
@@ -59,12 +204,34 @@ Web pages and applications should be accessible to all users, including those wi
 
 ### Resources:
 1. [Web Fundamentals -> Introduction to Focus](https://developers.google.com/web/fundamentals/accessibility/focus/)
+
+tabindex="0": Inserts an element into the natural tab order. The element can be focused by pressing the Tab key, and the element can be focused by calling its focus() method
+`<custom-button tabindex="0">Press Tab to Focus Me!</custom-button>`
+
+
+tabindex="-1": Removes an element from the natural tab order, but the element can still be focused by calling its focus() method
+```html
+<button id="foo" tabindex="-1">I'm not keyboard focusable</button>
+<button onclick="foo.focus();">Focus my sibling</button>
+```
+
 2. [Web Fundamentals -> Introduction to Semantics](https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/)
+- The element's role or type, if it is specified (it should be).
+- The element's name, if it has one (it should).
+- The element's value, if it has one (it may or may not).
+- The element's state, e.g., whether it is enabled or disabled (if applicable).
+
 3. [Web Fundamentals -> The Accessibility Tree](https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/the-accessibility-tree)
 4. [Web Fundamentals -> Text Alternatives for Images](https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/text-alternatives-for-images)
 5. [Web Fundamentals -> Aria Labels and Relationships](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/aria-labels-and-relationships)
 6. [Web Fundamentals -> Accessible Styles](https://developers.google.com/web/fundamentals/accessibility/accessible-styles)
-7. [Web Fundamentals -> Hiding and Updating Content](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/hiding-and-updating-content)
+7. [Web Fundamentals -> Hiding and Updating Content](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/hiding-and-updating-content) <<< read this, sounds important
+
+aria-live has three allowable values: polite, assertive, and off.
+
+aria-live="polite" tells assistive technology to alert the user to this change when it has finished whatever it is currently doing. It's great to use if something is important but not urgent, and accounts for the majority of aria-live use.
+aria-live="assertive" tells assistive technology to interrupt whatever it's doing and alert the user to this change immediately. This is only for important and urgent updates, such as a status message like "There has been a server error and your changes are not saved; please refresh the page", or updates to an input field as a direct result of a user action, such as buttons on a stepper widget.
+aria-live="off" tells assistive technology to temporarly suspend aria-live interruptions.
 
 ## Progressive Web Apps
 Users expect native applications to be available offline and provide a feature- rich experience that is launchable from their home page. You'll be asked to show that you can use service workers, HTML, and JavaScript to build out Progressive Web App features similar to native applications by:
