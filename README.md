@@ -22,6 +22,10 @@ Users expect responsive and visually engaging websites regardless of the device.
 
 ### Resources:
 1. [Codelabs -> Responsive design](https://codelabs.developers.google.com/codelabs/pwa-responsive-design/index.html?index=..%2F..dev-pwa-training#0)
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
 2. [Codelabs -> Responsive images](https://codelabs.developers.google.com/codelabs/pwa-responsive-images/index.html?index=..%2F..dev-pwa-training#0)
 3. [Web Fundamentals -> Video](https://developers.google.com/web/fundamentals/media/video)
 4. [https://developers.google.com/web/fundamentals/design-and-ux/responsive/](https://developers.google.com/web/fundamentals/design-and-ux/responsive/)
