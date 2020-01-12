@@ -227,11 +227,11 @@ tabindex="-1": Removes an element from the natural tab order, but the element ca
 6. [Web Fundamentals -> Accessible Styles](https://developers.google.com/web/fundamentals/accessibility/accessible-styles)
 7. [Web Fundamentals -> Hiding and Updating Content](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/hiding-and-updating-content) <<< read this, sounds important
 
-aria-live has three allowable values: polite, assertive, and off.
+`aria-live` has three allowable values: polite, assertive, and off.
 
-aria-live="polite" tells assistive technology to alert the user to this change when it has finished whatever it is currently doing. It's great to use if something is important but not urgent, and accounts for the majority of aria-live use.
-aria-live="assertive" tells assistive technology to interrupt whatever it's doing and alert the user to this change immediately. This is only for important and urgent updates, such as a status message like "There has been a server error and your changes are not saved; please refresh the page", or updates to an input field as a direct result of a user action, such as buttons on a stepper widget.
-aria-live="off" tells assistive technology to temporarly suspend aria-live interruptions.
+`aria-live="polite"` tells assistive technology to alert the user to this change when it has finished whatever it is currently doing. It's great to use if something is important but not urgent, and accounts for the majority of aria-live use.
+`aria-live="assertive"` tells assistive technology to interrupt whatever it's doing and alert the user to this change immediately. This is only for important and urgent updates, such as a status message like "There has been a server error and your changes are not saved; please refresh the page", or updates to an input field as a direct result of a user action, such as buttons on a stepper widget.
+`aria-live="off"` tells assistive technology to temporarly suspend aria-live interruptions.
 
 ## Progressive Web Apps
 Users expect native applications to be available offline and provide a feature- rich experience that is launchable from their home page. You'll be asked to show that you can use service workers, HTML, and JavaScript to build out Progressive Web App features similar to native applications by:
