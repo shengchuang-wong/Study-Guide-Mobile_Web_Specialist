@@ -242,8 +242,301 @@ Users expect native applications to be available offline and provide a feature- 
 
 ### Resources:
 1. [Codelab -> Scripting the service worker](https://codelabs.developers.google.com/codelabs/pwa-scripting-the-service-worker/index.html?index=..%2F..dev-pwa-training#0)
+
+#### Register service worker
+```js
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+    .then(registration => {
+      console.log('Service Worker is registered', registration);
+    })
+    .catch(err => {
+      console.error('Registration failed:', err);
+    });
+  });
+}
+```
+
+#### Install and activate service worker
+```js
+self.addEventListener('install', event => {
+  console.log('Service worker installing...');
+  // Add a call to skipWaiting here
+});
+
+self.addEventListener('activate', event => {
+  console.log('Service worker activating...');
+});
+```
+
+In service-worker.js, add a call to skipWaiting in the install event listener:
+`self.skipWaiting();`
+
+#### Fetch event
+```js
+self.addEventListener('fetch', event => {
+  console.log('Fetching:', event.request.url);
+});
+```
+
+#### Service worker scope
+```js
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+    .then(registration => {
+      console.log('SW registered with scope:', registration.scope);
+    })
+    .catch(err => {
+      console.error('Registration failed:', err);
+    });
+  });
+}
+
+navigator.serviceWorker.register('/service-worker.js', {
+  scope: '/kitten/'
+});
+```
+
 2. [Codelab -> Caching files with the service worker](https://codelabs.developers.google.com/codelabs/pwa-caching-service-worker/index.html?index=..%2F..dev-pwa-training#0)
+
+#### Install event, cache file
+```js
+const filesToCache = [
+  '/',
+  'style/main.css',
+  'images/still_life_medium.jpg',
+  'index.html',
+  'pages/offline.html',
+  'pages/404.html'
+];
+
+const staticCacheName = 'pages-cache-v1';
+
+self.addEventListener('install', event => {
+  console.log('Attempting to install service worker and cache static assets');
+  event.waitUntil(
+    caches.open(staticCacheName)
+    .then(cache => {
+      return cache.addAll(filesToCache);
+    })
+  );
+});
+```
+
+#### Serve file from the cache
+```js
+self.addEventListener('fetch', event => {
+  console.log('Fetch event for ', event.request.url);
+  event.respondWith(
+    caches.match(event.request)
+    .then(response => {
+      if (response) {
+        console.log('Found ', event.request.url, ' in cache');
+        return response;
+      }
+      console.log('Network request for ', event.request.url);
+      return fetch(event.request)
+
+      // TODO 4 - Add fetched files to the cache
+
+    }).catch(error => {
+
+      // TODO 6 - Respond with custom offline page
+
+    })
+  );
+});
+```
+
+#### Add network response to the cache
+```js
+.then(response => {
+  // TODO 5 - Respond with custom 404 page
+  return caches.open(staticCacheName).then(cache => {
+    cache.put(event.request.url, response.clone());
+    return response;
+  });
+});
+```
+
+#### Delete outdated cache
+```js
+self.addEventListener('activate', event => {
+  console.log('Activating new service worker...');
+
+  const cacheWhitelist = [staticCacheName];
+
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+```
+Change the name of the cache to "pages-cache-v2":
+`var staticCacheName = 'pages-cache-v2';`
+
 3. [Codelab -> Offline quickstart](https://codelabs.developers.google.com/codelabs/pwa-offline-quickstart/index.html?index=..%2F..dev-pwa-training#0)
+
+#### Precache resources
+```js
+const cacheName = 'cache-v1';
+const precacheResources = [
+  '/',
+  'index.html',
+  'styles/main.css',
+  'images/space1.jpg',
+  'images/space2.jpg',
+  'images/space3.jpg'
+];
+
+self.addEventListener('install', event => {
+  console.log('Service worker install event!');
+  event.waitUntil(
+    caches.open(cacheName)
+      .then(cache => {
+        return cache.addAll(precacheResources);
+      })
+  );
+});
+
+self.addEventListener('activate', event => {
+  console.log('Service worker activate event!');
+});
+
+self.addEventListener('fetch', event => {
+  console.log('Fetch intercepted for:', event.request.url);
+  event.respondWith(caches.match(event.request)
+    .then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request);
+      })
+    );
+});
+```
+
+Manifest.json
+```json
+{
+  "name": "Space Missions",
+  "short_name": "Space Missions",
+  "lang": "en-US",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "theme_color": "#FF9800",
+  "background_color": "#FF9800",
+  "icons": [
+    {
+      "src": "images/touch/icon-128x128.png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "images/touch/icon-192x192.png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/touch/icon-256x256.png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "images/touch/icon-384x384.png",
+      "sizes": "384x384"
+    },
+    {
+      "src": "images/touch/icon-512x512.png",
+      "sizes": "512x512"
+    }
+  ]
+}
+```
+
+Manifest in HTML
+```html
+<link rel="manifest" href="manifest.json">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Space Missions">
+<meta name="apple-mobile-web-app-title" content="Space Missions">
+<meta name="theme-color" content="#FF9800">
+<meta name="msapplication-navbutton-color" content="#FF9800">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="msapplication-starturl" content="/index.html">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="icon" sizes="128x128" href="/images/touch/icon-128x128.png">
+<link rel="apple-touch-icon" sizes="128x128" href="/images/touch/icon-128x128.png">
+<link rel="icon" sizes="192x192" href="icon-192x192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/images/touch/icon-192x192.png">
+<link rel="icon" sizes="256x256" href="/images/touch/icon-256x256.png">
+<link rel="apple-touch-icon" sizes="256x256" href="/images/touch/icon-256x256.png">
+<link rel="icon" sizes="384x384" href="/images/touch/icon-384x384.png">
+<link rel="apple-touch-icon" sizes="384x384" href="/images/touch/icon-384x384.png">
+<link rel="icon" sizes="512x512" href="/images/touch/icon-512x512.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/images/touch/icon-512x512.png">
+```
+
+#### Manual prompt installation
+```html
+<section id="installBanner" class="banner">
+    <button id="installBtn">Install app</button>
+</section>
+```
+
+```css
+.banner {
+  align-content: center;
+  display: none;
+  justify-content: center;
+  width: 100%;
+}
+```
+
+```js
+<script>
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', event => {
+
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      event.preventDefault();
+
+      // Stash the event so it can be triggered later.
+      deferredPrompt = event;
+
+      // Attach the install prompt to a user gesture
+      document.querySelector('#installBtn').addEventListener('click', event => {
+
+        // Show the prompt
+        deferredPrompt.prompt();
+
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice
+          .then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User accepted the A2HS prompt');
+            } else {
+              console.log('User dismissed the A2HS prompt');
+            }
+            deferredPrompt = null;
+          });
+      });
+
+      // Update UI notify the user they can add to home screen
+      document.querySelector('#installBanner').style.display = 'flex';
+    });
+  </script>
+```
+
 4. [Codelab -> Adding a Service Worker and Offline into your Web App](https://codelabs.developers.google.com/codelabs/offline/index.html?index=..%2F..%2Findex#0)
 5. [Web Fundamentals -> The App Shell Model](https://developers.google.com/web/fundamentals/architecture/app-shell)
 
