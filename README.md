@@ -559,8 +559,199 @@ Mobile users demand websites that load nearly instantly, despite poor or absent 
 
 ### Resources:
 1. [Codelab -> IndexedDB API(https://codelabs.developers.google.com/codelabs/pwa-indexed-db/index.html?index=..%2F..dev-pwa-training#0)
+
+#### Check for IndexedDB support
+```js
+if (!('indexedDB' in window)) {
+  console.log('This browser doesn\'t support IndexedDB');
+  return;
+}
+```
+
+#### Create IndexedDB database
+`var dbPromise = idb.open('couches-n-things', 1);`
+
+#### Create object store (table) in database
+```js
+var dbPromise = idb.open('couches-n-things', 2, function(upgradeDb) {
+  switch (upgradeDb.oldVersion) {
+    case 0:
+      // a placeholder case so that the switch block will 
+      // execute when the database is first created
+      // (oldVersion is 0)
+    case 1:
+      console.log('Creating the products object store');
+      upgradeDb.createObjectStore('products', {keyPath: 'id'});
+
+    // TODO 4.1 - create 'name' index
+
+    // TODO 4.2 - create 'price' and 'description' indexes
+
+    // TODO 5.1 - create an 'orders' object store
+
+  }
+});
+```
+
+#### Add items into object store
+```js
+dbPromise.then(function(db) {
+  var tx = db.transaction('products', 'readwrite');
+  var store = tx.objectStore('products');
+  var items = [
+    {
+      name: 'Couch',
+      id: 'cch-blk-ma',
+      price: 499.99,
+      color: 'black',
+      material: 'mahogany',
+      description: 'A very comfy couch',
+      quantity: 3
+    },
+    {
+      name: 'Armchair',
+      id: 'ac-gr-pin',
+      price: 299.99,
+      color: 'grey',
+      material: 'pine',
+      description: 'A plush recliner armchair',
+      quantity: 7
+    }
+  ];
+  return Promise.all(items.map(function(item) {
+      console.log('Adding item: ', item);
+      return store.add(item);
+    })
+  ).catch(function(e) {
+    tx.abort();
+    console.log(e);
+  }).then(function() {
+    console.log('All items added successfully!');
+  });
+});
+```
+
+#### Create an index
+```js
+case 2:
+  console.log('Creating a name index');
+  var store = upgradeDb.transaction.objectStore('products');
+  store.createIndex('name', 'name', {unique: true});
+```
+
+#### Get method with index
+```js
+return dbPromise.then(function(db) {
+  var tx = db.transaction('products', 'readonly');
+  var store = tx.objectStore('products');
+  var index = store.index('name');
+  return index.get(key);
+});
+```
+
+#### Cursor - range between
+```js
+var lower = document.getElementById('priceLower').value;
+var upper = document.getElementById('priceUpper').value;
+var lowerNum = Number(document.getElementById('priceLower').value);
+var upperNum = Number(document.getElementById('priceUpper').value);
+
+if (lower === '' && upper === '') {return;}
+var range;
+if (lower !== '' && upper !== '') {
+  range = IDBKeyRange.bound(lowerNum, upperNum);
+} else if (lower === '') {
+  range = IDBKeyRange.upperBound(upperNum);
+} else {
+  range = IDBKeyRange.lowerBound(lowerNum);
+}
+var s = '';
+dbPromise.then(function(db) {
+  var tx = db.transaction('products', 'readonly');
+  var store = tx.objectStore('products');
+  var index = store.index('price');
+  return index.openCursor(range);
+}).then(function showRange(cursor) {
+  if (!cursor) {return;}
+  console.log('Cursored at:', cursor.value.name);
+  s += '<h2>Price - ' + cursor.value.price + '</h2><p>';
+  for (var field in cursor.value) {
+    s += field + '=' + cursor.value[field] + '<br/>';
+  }
+  s += '</p>';
+  return cursor.continue().then(showRange);
+}).then(function() {
+  if (s === '') {s = '<p>No results.</p>';}
+  document.getElementById('results').innerHTML = s;
+});
+```
+
+#### Process function
+```js
+return dbPromise.then(function(db) {
+  var tx = db.transaction('products');
+  var store = tx.objectStore('products');
+  return Promise.all(
+    orders.map(function(order) {
+      return store.get(order.id).then(function(product) {
+        return decrementQuantity(product, order);
+      });
+    })
+  );
+});
+```
+
+#### Process function - more
+```js
+return new Promise(function(resolve, reject) {
+  var item = product;
+  var qtyRemaining = item.quantity - order.quantity;
+  if (qtyRemaining < 0) {
+    console.log('Not enough ' + product.id + ' left in stock!');
+    document.getElementById('receipt').innerHTML =
+    '<h3>Not enough ' + product.id + ' left in stock!</h3>';
+    throw 'Out of stock!';
+  }
+  item.quantity = qtyRemaining;
+  resolve(item);
+});
+```
+
+
 2. [Supercharged Youtube series -> Web Workers(https://www.youtube.com/watch?v=X57mh8tKkgE)
+
+Main.js
+```js
+window.addEventListener('load', () => {
+
+  const webWorker = new Worker('web-worker.js')
+
+  webWorker.addEventListener('message', (message) => {
+    console.log({messageFromMain: message.data})
+  })
+
+  document.getElementById('myButton').addEventListener('click', () => {
+    webWorker.postMessage('myMessage')
+  })
+})
+```
+
+web-worker.js
+```js
+self.addEventListener('message', message => {
+  console.log({
+    messageInWebWorker: message.data
+  })
+
+  postMessage(message.data)
+})
+```
+
+
 3. [Web Fundamentals -> Why Performance Matters(https://developers.google.com/web/fundamentals/performance/why-performance-matters/)
+
+#### Remark - study about preload, prefetch, preconnect, etc...
+
 4. [Web Fundamentals -> Resource Prioritization(https://developers.google.com/web/fundamentals/performance/resource-prioritization)
 5. [Web Tools -> Get Started with Analyzing Network Performance in Chrome DevTools(https://developers.google.com/web/tools/chrome-devtools/network-performance/)
 6. [Web Tools -> Critical Request Chains(https://developers.google.com/web/tools/lighthouse/audits/critical-request-chains)
@@ -575,6 +766,10 @@ Developers typically work in highly iterative deployment environments, relying o
 
 ### Resources:
 1. [Web Fundamentals -> Debugging Service Workers](https://developers.google.com/web/fundamentals/codelabs/debugging-service-workers/)
+
+#### Push notification? 
+- https://codelabs.developers.google.com/codelabs/debugging-service-workers/#6
+
 2. [Web Tools -> Chrome Dev Tools](https://developers.google.com/web/tools/chrome-devtools/)
 3. [Web Tools -> Get Started with Debugging JavaScript in Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/javascript/)
 4. [Web Tools -> Diagnose and Log to Console](https://developers.google.com/web/tools/chrome-devtools/console/console-write)
@@ -593,6 +788,64 @@ Web developers must stay current with the latest JavaScript features that promot
 
 ### Resources:
 1. [Codelabs -> Promises](https://codelabs.developers.google.com/codelabs/pwa-promises/index.html?index=..%2F..dev-pwa-training#0)
+
+#### Promises
+```js
+function getImageName(country) {
+  country = country.toLowerCase();
+  const promiseOfImageName = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (country === 'spain' || country === 'chile' || country === 'peru') {
+        resolve(country + '.png');
+      } else {
+        reject(Error('Didn\'t receive a valid country name!'));
+      }
+    }, 1000);
+  });
+  console.log(promiseOfImageName);
+  return promiseOfImageName;    
+}
+```
+
+#### Promises from scratch
+```js
+const promise = new Promise((resolve, reject) => {
+  // do a thing, possibly async, then...
+
+  if (/* everything turned out fine */) {
+    resolve("Stuff worked!");
+  }
+  else {
+    reject(Error("It broke"));
+  }
+});
+```
+
+#### Promises race 
+```js
+var promises = [
+  getImageName('Spain'),
+  getImageName('Chile'),
+  getImageName('Peru')
+];
+
+allFlags(promises).then(function(result) {
+  console.log(result);
+});
+
+const promise1 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 500, 'one');
+});
+
+const promise2 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 100, 'two');
+});
+
+Promise.race([promise1, promise2])
+.then(logSuccess)
+.catch(logError);
+```
+
 2. [Codelabs -> Build your first ES2015/ES6 application](https://codelabs.developers.google.com/codelabs/chrome-es2015/)
 3. [Web Fundamentals -> JavaScript Promises: an Introduction](https://developers.google.com/web/fundamentals/getting-started/primers/promises)
 
