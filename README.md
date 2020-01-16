@@ -234,6 +234,15 @@ To summarize, all images should have an alt attribute, but they need not all hav
 
 
 5. [Web Fundamentals -> Aria Labels and Relationships](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/aria-labels-and-relationships)
+
+- `role`
+- `aria-label`
+- `aria-labelledby`
+- `aria-owns`
+- `aria-activedescendant`
+- `aria-describedby`
+- `aria-posinset` && `aria-setsize`
+
 6. [Web Fundamentals -> Accessible Styles](https://developers.google.com/web/fundamentals/accessibility/accessible-styles)
 7. [Web Fundamentals -> Hiding and Updating Content](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/hiding-and-updating-content) <<< read this, sounds important
 
