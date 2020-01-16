@@ -244,13 +244,36 @@ To summarize, all images should have an alt attribute, but they need not all hav
 - `aria-posinset` && `aria-setsize`
 
 6. [Web Fundamentals -> Accessible Styles](https://developers.google.com/web/fundamentals/accessibility/accessible-styles)
+
+- Styling focus
+- Input modality
+- Styling states with ARIA (`.toggle[aria-pressed="true"] { ... }`)
+- Multi-device responsive design
+- Color and contrast
+- Don't convey information with color alone
+- High contrast mode
+
 7. [Web Fundamentals -> Hiding and Updating Content](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/hiding-and-updating-content) <<< read this, sounds important
 
+`aria-hidden`
+```css
+.sr-only {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+```
 `aria-live` has three allowable values: polite, assertive, and off.
 
 `aria-live="polite"` tells assistive technology to alert the user to this change when it has finished whatever it is currently doing. It's great to use if something is important but not urgent, and accounts for the majority of aria-live use.
 `aria-live="assertive"` tells assistive technology to interrupt whatever it's doing and alert the user to this change immediately. This is only for important and urgent updates, such as a status message like "There has been a server error and your changes are not saved; please refresh the page", or updates to an input field as a direct result of a user action, such as buttons on a stepper widget.
 `aria-live="off"` tells assistive technology to temporarly suspend aria-live interruptions.
+
+`aria-atomic`
+`aria-relevant`
+`aria-busy`
 
 ## Progressive Web Apps
 Users expect native applications to be available offline and provide a feature- rich experience that is launchable from their home page. You'll be asked to show that you can use service workers, HTML, and JavaScript to build out Progressive Web App features similar to native applications by:
@@ -768,10 +791,33 @@ self.addEventListener('message', message => {
 
 
 3. [Web Fundamentals -> Why Performance Matters(https://developers.google.com/web/fundamentals/performance/why-performance-matters/)
-
-#### Remark - study about preload, prefetch, preconnect, etc...
-
 4. [Web Fundamentals -> Resource Prioritization(https://developers.google.com/web/fundamentals/performance/resource-prioritization)
+
+- `<link rel="preload">` informs the browser that a resource is needed as part of the current navigation, and that it should start getting fetched as soon as possible. Here’s how you use it:
+```html
+<link rel="preload" as="script" href="super-important.js">
+<link rel="preload" as="style" href="critical.css">
+<link rel="preload" as="font" crossorigin="crossorigin" type="font/woff2" href="myfont.woff2">
+```
+Resources that are fetched using <link rel="preload">, but not used by the current page within 3 seconds will trigger a warning in the Console in Chrome Developer Tools, so be sure to keep an eye out for these!
+
+- `<link rel="preconnect">` informs the browser that your page intends to establish a connection to another origin, and that you’d like the process to start as soon as possible.
+```html
+<link rel="preconnect" href="https://example.com">
+```
+Bear in mind that while <link rel="preconnect"> is pretty cheap, it can still take up valuable CPU time, particularly on secure connections. This is especially bad if the connection isn’t used within 10 seconds, as the browser closes it, wasting all of that early connection work.
+
+In general, try to use `<link rel="preload">` wherever you can, as it’s a more comprehensive performance tweak, but do keep `<link rel="preconnect">` in your toolbelt for the edge cases. Let’s look at a couple of them.
+Use-case: Knowing Where From, but not What You're Fetching
+Use-case: Streaming Media
+
+- `<link rel="prefetch">` is somewhat different from `<link rel="preload">` and `<link rel="preconnect">`, in that it doesn’t try to make something critical happen faster; instead, it tries to make something non-critical happen earlier, if there’s a chance. This means that `prefetch` is most suitable to preempt what the user might be doing next, and prepare for it, such as retrieving the first product details page in a list of results, or retrieving the next page in paginated content.
+```html
+<link rel="prefetch" href="page-2.html">
+```
+
+There’s a number of other tools and techniques you can use to tweak the priority and timing at which your resources get loaded. Be sure to read up on `HTTP/2 server push`; using `IntersectionObserver` to lazily load images and other media; avoiding render-blocking CSS with media queries and libraries like `loadCSS`; and delaying JavaScript fetch, compile and execute with `async` and `defer`.
+
 5. [Web Tools -> Get Started with Analyzing Network Performance in Chrome DevTools(https://developers.google.com/web/tools/chrome-devtools/network-performance/)
 6. [Web Tools -> Critical Request Chains(https://developers.google.com/web/tools/lighthouse/audits/critical-request-chains)
 
