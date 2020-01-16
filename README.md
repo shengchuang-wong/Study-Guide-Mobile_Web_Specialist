@@ -223,6 +223,16 @@ tabindex="-1": Removes an element from the natural tab order, but the element ca
 
 3. [Web Fundamentals -> The Accessibility Tree](https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/the-accessibility-tree)
 4. [Web Fundamentals -> Text Alternatives for Images](https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/text-alternatives-for-images)
+
+On the other hand, it's not always useful to describe an image. For example, consider a magnifying glass image inside a search button that has the text "Search". If the text wasn't there, you would definitely give that image an alt value of "search". But because we have the visible text, the screen reader will pick up and read aloud the word "search"; thus, an identical alt value on the image is redundant.
+
+However, we know that if we leave the alt text out, we'll probably hear the image file name instead, which is both useless and potentially confusing. In this case you can just use an empty alt attribute, and the screen reader will skip the image altogether.
+
+`<img src="magnifying-glass.jpg" alt="">`
+
+To summarize, all images should have an alt attribute, but they need not all have text. Important images should have descriptive alt text that succinctly describes what the image is, while decorative images should have empty alt attributes — that is, `alt=""`.
+
+
 5. [Web Fundamentals -> Aria Labels and Relationships](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/aria-labels-and-relationships)
 6. [Web Fundamentals -> Accessible Styles](https://developers.google.com/web/fundamentals/accessibility/accessible-styles)
 7. [Web Fundamentals -> Hiding and Updating Content](https://developers.google.com/web/fundamentals/accessibility/semantics-aria/hiding-and-updating-content) <<< read this, sounds important
